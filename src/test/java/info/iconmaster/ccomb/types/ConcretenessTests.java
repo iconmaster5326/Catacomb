@@ -92,4 +92,9 @@ public class ConcretenessTests {
 	public void test11() throws Throwable {
 		assertTrue(new PolyType("array", Arrays.asList(PolyType.polyTypes.get("int"))).isConcrete());
 	}
+	
+	@Test
+	public void test12() throws Throwable {
+		assertTrue(new FuncType().isConcrete());
+	}
 }

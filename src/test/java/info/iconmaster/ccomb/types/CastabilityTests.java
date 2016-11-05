@@ -200,4 +200,70 @@ public class CastabilityTests {
 		assertFalse(arrayA.isCastableTo(arrayB));
 		assertTrue(arrayB.isCastableTo(arrayA));
 	}
+	
+	@Test
+	public void test15() throws Throwable {
+		FuncType a = new FuncType();
+		FuncType b = new FuncType();
+		
+		assertTrue(a.equals(b));
+		assertTrue(b.equals(a));
+		
+		assertTrue(a.isCastableTo(b));
+		assertTrue(b.isCastableTo(a));
+	}
+	
+	@Test
+	public void test16() throws Throwable {
+		FuncType a = new FuncType();
+		FuncType b = new FuncType(Arrays.asList(new VarType()));
+		
+		assertFalse(a.equals(b));
+		assertFalse(b.equals(a));
+		
+		assertFalse(a.isCastableTo(b));
+		assertFalse(b.isCastableTo(a));
+	}
+	
+	@Test
+	public void test17() throws Throwable {
+		FuncType a = new FuncType();
+		FuncType b = new FuncType(Arrays.asList(new VarType()), Arrays.asList(new VarType()));
+		
+		assertFalse(a.equals(b));
+		assertFalse(b.equals(a));
+		
+		assertTrue(a.isCastableTo(b));
+		assertFalse(b.isCastableTo(a));
+	}
+	
+	@Test
+	public void test18() throws Throwable {
+		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList());
+		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
+		
+		FuncType a = new FuncType(Arrays.asList(nums));
+		FuncType b = new FuncType(Arrays.asList(ints));
+		
+		assertFalse(a.equals(b));
+		assertFalse(b.equals(a));
+		
+		assertFalse(a.isCastableTo(b));
+		assertTrue(b.isCastableTo(a));
+	}
+	
+	@Test
+	public void test19() throws Throwable {
+		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList());
+		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
+		
+		FuncType a = new FuncType(Arrays.asList(nums, ints));
+		FuncType b = new FuncType(Arrays.asList(ints, nums));
+		
+		assertFalse(a.equals(b));
+		assertFalse(b.equals(a));
+		
+		assertFalse(a.isCastableTo(b));
+		assertFalse(b.isCastableTo(a));
+	}
 }
