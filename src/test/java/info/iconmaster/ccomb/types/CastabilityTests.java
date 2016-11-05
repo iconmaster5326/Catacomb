@@ -190,7 +190,7 @@ public class CastabilityTests {
 	public void test14() throws Throwable {
 		PolyType any = PolyType.polyTypes.get("any");
 		VarType a = new VarType("A");
-		PolyType b = PolyType.registerPolyType("b", Arrays.asList(), Arrays.asList());
+		PolyType b = PolyType.registerPolyType("b", Arrays.asList(), Arrays.asList(any));
 		
 		PolyType.registerPolyType("array", Arrays.asList(a), Arrays.asList(any));
 		

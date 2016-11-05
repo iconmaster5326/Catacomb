@@ -28,7 +28,10 @@ public class PolyType extends CCombType {
 		this.supertypes = new ArrayList<>();
 		
 		assertWellFormed();
-		addSupertypes(polyTypes.get(name));
+		
+		PolyType other = polyTypes.get(name);
+		addSupertypes(other);
+		this.primitive = other.primitive;
 	}
 	
 	public PolyType(String name, Collection<? extends CCombType> typevars) throws CatacombException {
@@ -37,7 +40,10 @@ public class PolyType extends CCombType {
 		this.supertypes = new ArrayList<>();
 		
 		assertWellFormed();
-		addSupertypes(polyTypes.get(name));
+		
+		PolyType other = polyTypes.get(name);
+		addSupertypes(other);
+		this.primitive = other.primitive;
 	}
 	
 	public PolyType(PolyType other) {
@@ -106,12 +112,25 @@ public class PolyType extends CCombType {
 	}
 	
 	/**
-	 * A poly type is castable to other if they are equal, or a supertype is castable to other.
+	 * A poly type is castable to other if:
+	 * 1. they are equal,
+	 * 2. they are the same type name, and all params are castable, or
+	 * 3. a supertype is castable to other.
 	 */
 	@Override
 	public boolean isCastableTo(CCombType other) {
 		
 		if (this.equals(other)) return true;
+		
+		if (other instanceof PolyType && ((PolyType)other).name.equals(name)) {
+			boolean allMatch = true;
+			int i = 0;
+			for (CCombType type : ((PolyType)other).typevars) {
+				if (!typevars.get(i).isCastableTo(type)) allMatch = false;
+				i++;
+			}
+			if (allMatch) return true;
+		}
 		
 		for (CCombType type : supertypes) {
 			if (type.isCastableTo(other)) return true;
