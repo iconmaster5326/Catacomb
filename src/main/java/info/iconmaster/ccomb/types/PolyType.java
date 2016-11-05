@@ -190,6 +190,34 @@ public class PolyType extends CCombType {
 	 */
 	public static void registerTypes() throws CatacombException {
 		registerMinimumTypes();
+		
+		PolyType sorts = registerPolyType("sorts", Arrays.asList(), Arrays.asList());
+		PolyType nums = registerPolyType("nums", Arrays.asList(), Arrays.asList(sorts));
+		PolyType ints = registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
+		PolyType reals = registerPolyType("reals", Arrays.asList(), Arrays.asList(nums));
+		
+		PolyType intType = registerPolyType("int", Arrays.asList(), Arrays.asList(ints)); intType.primitive = true;
+		PolyType uintType = registerPolyType("uint", Arrays.asList(), Arrays.asList(ints)); uintType.primitive = true;
+		PolyType shortType = registerPolyType("short", Arrays.asList(), Arrays.asList(ints)); shortType.primitive = true;
+		PolyType ushortType = registerPolyType("ushort", Arrays.asList(), Arrays.asList(ints)); ushortType.primitive = true;
+		PolyType longType = registerPolyType("long", Arrays.asList(), Arrays.asList(ints)); longType.primitive = true;
+		PolyType ulongType = registerPolyType("ulong", Arrays.asList(), Arrays.asList(ints)); ulongType.primitive = true;
+		PolyType charType = registerPolyType("char", Arrays.asList(), Arrays.asList(ints)); charType.primitive = true;
+		PolyType byteType = registerPolyType("byte", Arrays.asList(), Arrays.asList(ints)); byteType.primitive = true;
+		
+		PolyType floatType = registerPolyType("float", Arrays.asList(), Arrays.asList(reals)); floatType.primitive = true;
+		PolyType doubleType = registerPolyType("double", Arrays.asList(), Arrays.asList(reals)); doubleType.primitive = true;
+		
+		PolyType allMaps = registerPolyType("$s", Arrays.asList(new VarType(), new VarType()), Arrays.asList());
+		PolyType maps = registerPolyType("maps", Arrays.asList(allMaps.typevars.get(0), allMaps.typevars.get(1)), Arrays.asList(allMaps));
+		PolyType arrays = registerPolyType("arrays", Arrays.asList(allMaps.typevars.get(1)), Arrays.asList(new PolyType(allMaps, Arrays.asList(intType, allMaps.typevars.get(1)))));
+		PolyType lists = registerPolyType("lists", Arrays.asList(allMaps.typevars.get(1)), Arrays.asList(arrays, new PolyType(maps, Arrays.asList(intType, allMaps.typevars.get(1)))));
+		
+		PolyType array = registerPolyType("array", Arrays.asList(arrays.typevars.get(0)), Arrays.asList(arrays)); array.primitive = true;
+		PolyType list = registerPolyType("list", Arrays.asList(lists.typevars.get(0)), Arrays.asList(lists)); list.primitive = true;
+		PolyType vector = registerPolyType("vector", Arrays.asList(lists.typevars.get(0)), Arrays.asList(lists)); vector.primitive = true;
+		PolyType map = registerPolyType("map", Arrays.asList(maps.typevars.get(0), maps.typevars.get(1)), Arrays.asList(maps)); map.primitive = true;
+		PolyType str = registerPolyType("str", Arrays.asList(), Arrays.asList(sorts, new PolyType(lists, Arrays.asList(charType)))); str.primitive = true;
 	}
 	
 	/**
