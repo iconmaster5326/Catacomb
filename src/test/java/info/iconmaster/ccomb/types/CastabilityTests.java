@@ -11,13 +11,14 @@ import info.iconmaster.ccomb.exceptions.CatacombException;
 import org.junit.Before;
 import org.junit.After;
 
-public class PolyTypeTest {
+public class CastabilityTests {
 	
 	// setup
 	
 	@Before
-	public void setup() {
+	public void setup() throws Throwable {
 		PolyType.polyTypes.clear();
+		PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
 	}
 	
 	@After
@@ -29,7 +30,7 @@ public class PolyTypeTest {
 	
 	@Test
 	public void test1() throws Throwable {
-		PolyType any = PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
+		PolyType any = PolyType.polyTypes.get("any");
 		
 		assertTrue(any.equals(any));
 		assertTrue(any.isCastableTo(any));
@@ -37,7 +38,7 @@ public class PolyTypeTest {
 	
 	@Test
 	public void test2() throws Throwable {
-		PolyType any = PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
+		PolyType any = PolyType.polyTypes.get("any");
 		PolyType other = new PolyType("any");
 		
 		assertTrue(any.equals(other));
@@ -46,7 +47,7 @@ public class PolyTypeTest {
 	
 	@Test
 	public void test3() throws Throwable {
-		PolyType any = PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
+		PolyType any = PolyType.polyTypes.get("any");
 		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList(any));
 		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
 		PolyType aInt = PolyType.registerPolyType("int", Arrays.asList(), Arrays.asList(ints));
@@ -56,7 +57,7 @@ public class PolyTypeTest {
 	
 	@Test
 	public void test4() throws Throwable {
-		PolyType any = PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
+		PolyType any = PolyType.polyTypes.get("any");
 		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList(any));
 		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
 		PolyType reals = PolyType.registerPolyType("reals", Arrays.asList(), Arrays.asList(nums));
@@ -70,8 +71,6 @@ public class PolyTypeTest {
 	
 	@Test
 	public void test5() throws Throwable {
-		PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
-		
 		try {
 			PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
 		} catch (CatacombException ex) {
@@ -83,7 +82,7 @@ public class PolyTypeTest {
 	
 	@Test
 	public void test6() throws Throwable {
-		PolyType any = PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
+		PolyType any = PolyType.polyTypes.get("any");
 		VarType t = new VarType("T");
 		
 		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(t), Arrays.asList(any));
@@ -95,7 +94,7 @@ public class PolyTypeTest {
 	
 	@Test
 	public void test7() throws Throwable {
-		PolyType any = PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
+		PolyType any = PolyType.polyTypes.get("any");
 		VarType a = new VarType("A");
 		VarType b = new VarType("B");
 		
@@ -108,7 +107,7 @@ public class PolyTypeTest {
 	
 	@Test
 	public void test8() throws Throwable {
-		PolyType any = PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
+		PolyType any = PolyType.polyTypes.get("any");
 		VarType.TypeGroup g = new VarType.TypeGroup();
 		VarType a = new VarType("A", g);
 		VarType b = new VarType("B", g);
@@ -118,5 +117,59 @@ public class PolyTypeTest {
 		
 		assertFalse(arrays.isCastableTo(array));
 		assertTrue(array.supertypes.get(0).toString() + " is NOT castable to " + arrays.toString(), array.isCastableTo(arrays));
+	}
+	
+	@Test
+	public void test9() throws Throwable {
+		VarType var = new VarType();
+		
+		assertTrue(var.equals(var));
+		
+		assertTrue(var.isCastableTo(var));
+	}
+	
+	@Test
+	public void test10() throws Throwable {
+		VarType a = new VarType();
+		VarType b = new VarType();
+		
+		assertTrue(a.equals(b));
+		assertTrue(b.equals(a));
+		
+		assertTrue(a.isCastableTo(b));
+		assertTrue(b.isCastableTo(a));
+	}
+	
+	@Test
+	public void test11() throws Throwable {
+		PolyType any = PolyType.polyTypes.get("any");
+		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList(any));
+		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
+		
+		VarType a = new VarType(nums);
+		VarType b = new VarType(ints);
+		
+		assertFalse(a.equals(b));
+		assertFalse(b.equals(a));
+		
+		assertFalse(a.isCastableTo(b));
+		assertTrue(b.isCastableTo(a));
+	}
+	
+	@Test
+	public void test12() throws Throwable {
+		PolyType any = PolyType.polyTypes.get("any");
+		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList(any));
+		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
+		PolyType reals = PolyType.registerPolyType("reals", Arrays.asList(), Arrays.asList(nums));
+		
+		VarType a = new VarType(ints);
+		VarType b = new VarType(reals);
+		
+		assertFalse(a.equals(b));
+		assertFalse(b.equals(a));
+		
+		assertFalse(a.isCastableTo(b));
+		assertFalse(b.isCastableTo(a));
 	}
 }
