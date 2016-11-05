@@ -5,7 +5,6 @@ import java.util.Collection;
 
 import info.iconmaster.ccomb.exceptions.CatacombException;
 import info.iconmaster.ccomb.execute.CCombStack;
-import info.iconmaster.ccomb.types.FuncType;
 
 /**
  * A user function. It is composed of a series of other functions.
@@ -18,8 +17,7 @@ public class UserFunction extends Function {
 	
 	public UserFunction(Collection<? extends Function> funcs) throws CatacombException {
 		funcs = new ArrayList<>(funcs);
-		// TODO: compose types, get type sig
-		type = new FuncType();
+		type = FunctionComposer.compose(funcs);
 	}
 	
 	@Override

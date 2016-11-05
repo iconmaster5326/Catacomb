@@ -8,7 +8,7 @@ import info.iconmaster.ccomb.types.VarType.TypeGroup;
 
 public class FuncType extends CCombType {
 	
-	ArrayList<CCombType> lhs, rhs;
+	public ArrayList<CCombType> lhs, rhs;
 	
 	public FuncType() {
 		this.lhs = new ArrayList<>();
