@@ -18,7 +18,7 @@ public class CastabilityTests {
 	@Before
 	public void setup() throws Throwable {
 		PolyType.polyTypes.clear();
-		PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
+		PolyType.registerMinimumTypes();
 	}
 	
 	@After
@@ -30,10 +30,8 @@ public class CastabilityTests {
 	
 	@Test
 	public void test1() throws Throwable {
-		PolyType any = PolyType.polyTypes.get("any");
-		
-		assertTrue(any.equals(any));
-		assertTrue(any.isCastableTo(any));
+		assertTrue(PolyType.ANY.equals(PolyType.ANY));
+		assertTrue(PolyType.ANY.isCastableTo(PolyType.ANY));
 	}
 	
 	@Test
@@ -47,8 +45,7 @@ public class CastabilityTests {
 	
 	@Test
 	public void test3() throws Throwable {
-		PolyType any = PolyType.polyTypes.get("any");
-		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList(any));
+		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList());
 		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
 		PolyType aInt = PolyType.registerPolyType("int", Arrays.asList(), Arrays.asList(ints));
 		
@@ -57,8 +54,7 @@ public class CastabilityTests {
 	
 	@Test
 	public void test4() throws Throwable {
-		PolyType any = PolyType.polyTypes.get("any");
-		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList(any));
+		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList());
 		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
 		PolyType reals = PolyType.registerPolyType("reals", Arrays.asList(), Arrays.asList(nums));
 		
@@ -82,10 +78,9 @@ public class CastabilityTests {
 	
 	@Test
 	public void test6() throws Throwable {
-		PolyType any = PolyType.polyTypes.get("any");
 		VarType t = new VarType("T");
 		
-		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(t), Arrays.asList(any));
+		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(t), Arrays.asList());
 		PolyType array = PolyType.registerPolyType("array", Arrays.asList(t), Arrays.asList(arrays));
 		
 		assertFalse(arrays.isCastableTo(array));
@@ -94,11 +89,10 @@ public class CastabilityTests {
 	
 	@Test
 	public void test7() throws Throwable {
-		PolyType any = PolyType.polyTypes.get("any");
 		VarType a = new VarType("A");
 		VarType b = new VarType("B");
 		
-		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(a), Arrays.asList(any));
+		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(a), Arrays.asList());
 		PolyType array = PolyType.registerPolyType("array", Arrays.asList(b), Arrays.asList(new PolyType(arrays, Arrays.asList(b))));
 		
 		assertFalse(arrays.isCastableTo(array));
@@ -107,12 +101,11 @@ public class CastabilityTests {
 	
 	@Test
 	public void test8() throws Throwable {
-		PolyType any = PolyType.polyTypes.get("any");
 		VarType.TypeGroup g = new VarType.TypeGroup();
 		VarType a = new VarType("A", g);
 		VarType b = new VarType("B", g);
 		
-		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(a), Arrays.asList(any));
+		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(a), Arrays.asList());
 		PolyType array = PolyType.registerPolyType("array", Arrays.asList(b), Arrays.asList(arrays));
 		
 		assertFalse(arrays.isCastableTo(array));
@@ -142,8 +135,7 @@ public class CastabilityTests {
 	
 	@Test
 	public void test11() throws Throwable {
-		PolyType any = PolyType.polyTypes.get("any");
-		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList(any));
+		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList());
 		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
 		
 		VarType a = new VarType(nums);
@@ -158,8 +150,7 @@ public class CastabilityTests {
 	
 	@Test
 	public void test12() throws Throwable {
-		PolyType any = PolyType.polyTypes.get("any");
-		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList(any));
+		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList());
 		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
 		PolyType reals = PolyType.registerPolyType("reals", Arrays.asList(), Arrays.asList(nums));
 		
@@ -175,11 +166,10 @@ public class CastabilityTests {
 	
 	@Test
 	public void test13() throws Throwable {
-		PolyType any = PolyType.polyTypes.get("any");
 		VarType a = new VarType("A");
 		VarType b = new VarType("B");
 		
-		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(a), Arrays.asList(any));
+		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(a), Arrays.asList());
 		PolyType array = PolyType.registerPolyType("array", Arrays.asList(b), Arrays.asList(arrays));
 		
 		assertFalse(arrays.isCastableTo(array));
@@ -188,11 +178,10 @@ public class CastabilityTests {
 	
 	@Test
 	public void test14() throws Throwable {
-		PolyType any = PolyType.polyTypes.get("any");
 		VarType a = new VarType("A");
-		PolyType b = PolyType.registerPolyType("b", Arrays.asList(), Arrays.asList(any));
+		PolyType b = PolyType.registerPolyType("b", Arrays.asList(), Arrays.asList());
 		
-		PolyType.registerPolyType("array", Arrays.asList(a), Arrays.asList(any));
+		PolyType.registerPolyType("array", Arrays.asList(a), Arrays.asList());
 		
 		PolyType arrayA = new PolyType("array", Arrays.asList(a));
 		PolyType arrayB = new PolyType("array", Arrays.asList(b));
@@ -265,5 +254,21 @@ public class CastabilityTests {
 		
 		assertFalse(a.isCastableTo(b));
 		assertFalse(b.isCastableTo(a));
+	}
+	
+	@Test
+	public void test20() throws Throwable {
+		PolyType nums = PolyType.registerPolyType("nums", Arrays.asList(), Arrays.asList());
+		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(nums));
+		
+		assertTrue(new FuncType().isCastableTo(PolyType.FUNC));
+		assertTrue(new FuncType(Arrays.asList(nums), Arrays.asList(ints)).isCastableTo(PolyType.FUNC));
+		assertTrue(new FuncType(Arrays.asList(nums, ints)).isCastableTo(PolyType.FUNC));
+		assertTrue(new FuncType(Arrays.asList(ints, nums)).isCastableTo(PolyType.FUNC));
+		
+		assertTrue(new FuncType().isCastableTo(PolyType.ANY));
+		assertTrue(new FuncType(Arrays.asList(nums), Arrays.asList(ints)).isCastableTo(PolyType.ANY));
+		assertTrue(new FuncType(Arrays.asList(nums, ints)).isCastableTo(PolyType.ANY));
+		assertTrue(new FuncType(Arrays.asList(ints, nums)).isCastableTo(PolyType.ANY));
 	}
 }

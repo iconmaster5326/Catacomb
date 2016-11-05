@@ -100,6 +100,8 @@ public class FuncType extends CCombType {
 			}
 			
 			return true;
+		} else if (PolyType.FUNC.isCastableTo(other)) {
+			return true;
 		} else {
 			return false;
 		}

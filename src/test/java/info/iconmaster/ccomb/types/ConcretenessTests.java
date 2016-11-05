@@ -18,14 +18,14 @@ public class ConcretenessTests {
 	@Before
 	public void setup() throws Throwable {
 		PolyType.polyTypes.clear();
-		PolyType any = PolyType.registerPolyType("any", Arrays.asList(), Arrays.asList());
+		PolyType.registerMinimumTypes();
 		
-		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList(any));
+		PolyType ints = PolyType.registerPolyType("ints", Arrays.asList(), Arrays.asList());
 		PolyType aInt = PolyType.registerPolyType("int", Arrays.asList(), Arrays.asList(ints)); aInt.primitive = true;
 		
 		VarType a = new VarType("A");
 		VarType b = new VarType("B");
-		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(a), Arrays.asList(any));
+		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(a), Arrays.asList());
 		PolyType array = PolyType.registerPolyType("array", Arrays.asList(b), Arrays.asList(new PolyType(arrays, Arrays.asList(b)))); array.primitive = true;
 	}
 	
@@ -38,7 +38,7 @@ public class ConcretenessTests {
 	
 	@Test
 	public void test1() throws Throwable {
-		assertFalse(PolyType.polyTypes.get("any").isConcrete());
+		assertFalse(PolyType.ANY.isConcrete());
 	}
 	
 	@Test

@@ -1,6 +1,7 @@
 package info.iconmaster.ccomb.types;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -121,6 +122,7 @@ public class PolyType extends CCombType {
 	public boolean isCastableTo(CCombType other) {
 		
 		if (this.equals(other)) return true;
+		if (ANY.equals(other)) return true;
 		
 		if (other instanceof PolyType && ((PolyType)other).name.equals(name)) {
 			boolean allMatch = true;
@@ -164,6 +166,31 @@ public class PolyType extends CCombType {
 	 * A map of type names to corresponding type templates.
 	 */
 	public static final HashMap<String, PolyType> polyTypes = new HashMap<>();
+	
+	/**
+	 * Static variables for easy access to common types used in other classes, like 'any'.
+	 */
+	public static PolyType ANY;
+	public static PolyType FUNC;
+	
+	/**
+	 * Registers the smallest number of classes so that type checking doesn't crash when you try to use it.
+	 * 
+	 * @throws CatacombException
+	 */
+	public static void registerMinimumTypes() throws CatacombException {
+		ANY = registerPolyType("any", Arrays.asList(), Arrays.asList());
+		FUNC = registerPolyType("func", Arrays.asList(), Arrays.asList(ANY));
+	}
+	
+	/**
+	 * This sets up the whole type graph.
+	 * 
+	 * @throws CatacombException
+	 */
+	public static void registerTypes() throws CatacombException {
+		registerMinimumTypes();
+	}
 	
 	/**
 	 * Before you create instances of PolyType, a template needs to be registered.
