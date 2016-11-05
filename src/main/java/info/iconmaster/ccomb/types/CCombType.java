@@ -23,4 +23,12 @@ public abstract class CCombType {
 	 * @return
 	 */
 	public abstract CCombType withVarsReplaced(Map<VarType.TypeGroup, CCombType> types);
+	
+	/**
+	 * Returns true if the type is concrete.
+	 * Returns false if the type is abstract.
+	 * 
+	 * @return
+	 */
+	public abstract boolean isConcrete();
 }

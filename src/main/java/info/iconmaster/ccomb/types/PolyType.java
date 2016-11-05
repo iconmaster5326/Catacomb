@@ -18,6 +18,7 @@ public class PolyType extends CCombType {
 	public String name;
 	public ArrayList<CCombType> typevars;
 	public ArrayList<CCombType> supertypes;
+	public boolean primitive = false;
 	
 	private PolyType() {}
 	
@@ -43,6 +44,7 @@ public class PolyType extends CCombType {
 		this.name = other.name;
 		this.typevars = new ArrayList<>(other.typevars);
 		this.supertypes = new ArrayList<>(other.supertypes);
+		this.primitive = other.primitive;
 		
 		// always well-formed, so no error-checking needed here
 	}
@@ -51,6 +53,7 @@ public class PolyType extends CCombType {
 		this.name = other.name;
 		this.typevars = new ArrayList<>(typevars);
 		this.supertypes = new ArrayList<>();
+		this.primitive = other.primitive;
 		
 		assertWellFormed();
 		addSupertypes(other);
@@ -208,5 +211,18 @@ public class PolyType extends CCombType {
 		for (CCombType type : template.supertypes) {
 			supertypes.add(type.withVarsReplaced(typemap));
 		}
+	}
+	
+	/**
+	 * A poly type is concrete if it is primitive and single, or if it has a concrete supertype.
+	 */
+	@Override
+	public boolean isConcrete() {
+		if (typevars.isEmpty()) return primitive;
+		
+		for (CCombType type : supertypes) {
+			if (type.isConcrete()) return true;
+		}
+		return false;
 	}
 }

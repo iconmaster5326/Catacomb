@@ -87,4 +87,8 @@ public class VarType extends CCombType {
 		}
 	}
 
+	@Override
+	public boolean isConcrete() {
+		return group.supertype.isConcrete();
+	}
 }
