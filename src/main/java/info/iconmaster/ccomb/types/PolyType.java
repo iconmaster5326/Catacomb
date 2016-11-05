@@ -49,7 +49,7 @@ public class PolyType extends CCombType {
 	public PolyType(PolyType other, Collection<? extends CCombType> typevars) throws CatacombException {
 		this.name = other.name;
 		this.typevars = new ArrayList<>(typevars);
-		this.supertypes = new ArrayList<>(other.supertypes);
+		this.supertypes = new ArrayList<>();
 		
 		assertWellFormed();
 		unifyTypes(polyTypes.get(name));
@@ -69,6 +69,11 @@ public class PolyType extends CCombType {
 				for (int i = 0; i < typevars.size(); i++) {
 					if (!other2.typevars.get(i).equals(this.typevars.get(i))) return false;
 				}
+				return true;
+			}
+		} else if (other instanceof VarType) {
+			VarType other2 = (VarType)other;
+			if (other2.group.supertype.equals(this)) {
 				return true;
 			}
 		}
@@ -94,6 +99,9 @@ public class PolyType extends CCombType {
 		}
 	}
 	
+	/**
+	 * A poly type is castable to other if they are equal, or a supertype is castable to other.
+	 */
 	@Override
 	public boolean isCastableTo(CCombType other) {
 		
@@ -142,7 +150,7 @@ public class PolyType extends CCombType {
 	 * Sets this type's supertypes' type parameters to match this type's type parameters.
 	 * @param other
 	 */
-	public void unifyTypes(PolyType other) {
+	public void unifyTypes(PolyType template) {
 		// TODO
 	}
 	
