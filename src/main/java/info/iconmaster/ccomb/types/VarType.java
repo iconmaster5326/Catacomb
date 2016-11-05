@@ -13,7 +13,7 @@ public class VarType extends CCombType {
 		CCombType supertype;
 		
 		public TypeGroup() {
-			this.supertype = PolyType.polyTypes.get("any");
+			this.supertype = PolyType.ANY;
 		}
 		
 		public TypeGroup(CCombType supertype) {
@@ -81,7 +81,7 @@ public class VarType extends CCombType {
 	@Override
 	public CCombType withVarsReplaced(Map<VarType.TypeGroup, CCombType> types) {
 		if (types.containsKey(this.group)) {
-			return types.get(this);
+			return types.get(this.group);
 		} else {
 			return this;
 		}
