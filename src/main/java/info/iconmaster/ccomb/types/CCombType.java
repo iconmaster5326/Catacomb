@@ -1,5 +1,7 @@
 package info.iconmaster.ccomb.types;
 
+import java.util.Map;
+
 /**
  * The base class for all Catacomb types.
  * 
@@ -13,4 +15,12 @@ public abstract class CCombType {
 	 * @return
 	 */
 	public abstract boolean isCastableTo(CCombType other);
+	
+	/**
+	 * Creates a copy of this class, with type variables replaced.
+	 * It is only intended to use var types as keys, but any types can be used.
+	 * 
+	 * @return
+	 */
+	public abstract CCombType withVarsReplaced(Map<VarType.TypeGroup, CCombType> types);
 }

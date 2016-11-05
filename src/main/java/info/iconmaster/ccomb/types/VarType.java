@@ -1,5 +1,7 @@
 package info.iconmaster.ccomb.types;
 
+import java.util.Map;
+
 /**
  * A variable type.
  * @author iconmaster
@@ -74,6 +76,15 @@ public class VarType extends CCombType {
 	@Override
 	public boolean isCastableTo(CCombType other) {
 		return group.supertype.isCastableTo(other);
+	}
+	
+	@Override
+	public CCombType withVarsReplaced(Map<VarType.TypeGroup, CCombType> types) {
+		if (types.containsKey(this.group)) {
+			return types.get(this);
+		} else {
+			return this;
+		}
 	}
 
 }

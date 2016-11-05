@@ -3,6 +3,7 @@ package info.iconmaster.ccomb.types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import info.iconmaster.ccomb.exceptions.CatacombException;
 
@@ -26,7 +27,7 @@ public class PolyType extends CCombType {
 		this.supertypes = new ArrayList<>();
 		
 		assertWellFormed();
-		unifyTypes(polyTypes.get(name));
+		addSupertypes(polyTypes.get(name));
 	}
 	
 	public PolyType(String name, Collection<? extends CCombType> typevars) throws CatacombException {
@@ -35,7 +36,7 @@ public class PolyType extends CCombType {
 		this.supertypes = new ArrayList<>();
 		
 		assertWellFormed();
-		unifyTypes(polyTypes.get(name));
+		addSupertypes(polyTypes.get(name));
 	}
 	
 	public PolyType(PolyType other) {
@@ -52,7 +53,7 @@ public class PolyType extends CCombType {
 		this.supertypes = new ArrayList<>();
 		
 		assertWellFormed();
-		unifyTypes(polyTypes.get(name));
+		addSupertypes(other);
 	}
 	
 	/**
@@ -88,6 +89,8 @@ public class PolyType extends CCombType {
 			StringBuilder sb = new StringBuilder();
 			
 			sb.append("(");
+			sb.append(name);
+			sb.append(" ");
 			for (CCombType type : typevars) {
 				sb.append(type);
 				sb.append(" ");
@@ -112,6 +115,25 @@ public class PolyType extends CCombType {
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public CCombType withVarsReplaced(Map<VarType.TypeGroup, CCombType> types) {
+		ArrayList<CCombType> newTypevars = new ArrayList<>();
+		ArrayList<CCombType> newSupertypes = new ArrayList<>();
+		
+		for (CCombType type : typevars) {
+			newTypevars.add(type.withVarsReplaced(types));
+		}
+		
+		for (CCombType type : supertypes) {
+			newSupertypes.add(type.withVarsReplaced(types));
+		}
+		
+		PolyType retType = new PolyType(this);
+		retType.typevars = newTypevars;
+		retType.supertypes = newSupertypes;
+		return retType;
 	}
 	
 	// stuff for type lookup.
@@ -147,16 +169,11 @@ public class PolyType extends CCombType {
 	}
 	
 	/**
-	 * Sets this type's supertypes' type parameters to match this type's type parameters.
-	 * @param other
-	 */
-	public void unifyTypes(PolyType template) {
-		// TODO
-	}
-	
-	/**
 	 * Throws an error if the type is not well-formed.
 	 * That is, this errors if the type does not match the template registered for it.
+	 * 
+	 * Intended for use in the constructors.
+	 * 
 	 * @throws CatacombException 
 	 */
 	public void assertWellFormed() throws CatacombException {
@@ -172,6 +189,24 @@ public class PolyType extends CCombType {
 		
 		if (!isCastableTo(template)) {
 			throw new CatacombException("Type is not castable to template");
+		}
+	}
+	
+	/**
+	 * Adds the supertypes to this type, modifying them in correspondence with the type params.
+	 * 
+	 * Intended for use in the constructors.
+	 * 
+	 * @param types
+	 */
+	public void addSupertypes(PolyType template) {
+		HashMap<VarType.TypeGroup, CCombType> typemap = new HashMap<>();
+		for (int i = 0; i < typevars.size(); i++) {
+			if (template.typevars.get(i) instanceof VarType) typemap.put(((VarType)template.typevars.get(i)).group, typevars.get(i));
+		}
+		
+		for (CCombType type : template.supertypes) {
+			supertypes.add(type.withVarsReplaced(typemap));
 		}
 	}
 }
