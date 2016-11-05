@@ -214,11 +214,16 @@ public class PolyType extends CCombType {
 	}
 	
 	/**
-	 * A poly type is concrete if it is primitive and single, or if it has a concrete supertype.
+	 * A poly type is concrete if it is primitive, or if it has a concrete supertype.
 	 */
 	@Override
 	public boolean isConcrete() {
-		if (typevars.isEmpty()) return primitive;
+		if (primitive) {
+			for (CCombType type : typevars) {
+				if (!type.isConcrete()) return false;
+			}
+			return true;
+		}
 		
 		for (CCombType type : supertypes) {
 			if (type.isConcrete()) return true;

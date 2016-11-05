@@ -116,7 +116,7 @@ public class CastabilityTests {
 		PolyType array = PolyType.registerPolyType("array", Arrays.asList(b), Arrays.asList(arrays));
 		
 		assertFalse(arrays.isCastableTo(array));
-		assertTrue(array.supertypes.get(0).toString() + " is NOT castable to " + arrays.toString(), array.isCastableTo(arrays));
+		assertTrue(array.isCastableTo(arrays));
 	}
 	
 	@Test
@@ -171,5 +171,33 @@ public class CastabilityTests {
 		
 		assertFalse(a.isCastableTo(b));
 		assertFalse(b.isCastableTo(a));
+	}
+	
+	@Test
+	public void test13() throws Throwable {
+		PolyType any = PolyType.polyTypes.get("any");
+		VarType a = new VarType("A");
+		VarType b = new VarType("B");
+		
+		PolyType arrays = PolyType.registerPolyType("arrays", Arrays.asList(a), Arrays.asList(any));
+		PolyType array = PolyType.registerPolyType("array", Arrays.asList(b), Arrays.asList(arrays));
+		
+		assertFalse(arrays.isCastableTo(array));
+		assertTrue(array.isCastableTo(arrays));
+	}
+	
+	@Test
+	public void test14() throws Throwable {
+		PolyType any = PolyType.polyTypes.get("any");
+		VarType a = new VarType("A");
+		PolyType b = PolyType.registerPolyType("b", Arrays.asList(), Arrays.asList());
+		
+		PolyType.registerPolyType("array", Arrays.asList(a), Arrays.asList(any));
+		
+		PolyType arrayA = new PolyType("array", Arrays.asList(a));
+		PolyType arrayB = new PolyType("array", Arrays.asList(b));
+		
+		assertFalse(arrayA.isCastableTo(arrayB));
+		assertTrue(arrayB.isCastableTo(arrayA));
 	}
 }
