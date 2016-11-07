@@ -1,6 +1,9 @@
 package info.iconmaster.ccomb.types;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.List;
+
+import info.iconmaster.ccomb.exceptions.CatacombException;
 
 /**
  * The base class for all Catacomb types.
@@ -22,7 +25,7 @@ public abstract class CCombType {
 	 * 
 	 * @return
 	 */
-	public abstract CCombType withVarsReplaced(Map<VarType.TypeGroup, CCombType> types);
+	public abstract List<CCombType> withVarsReplaced(VarType.TypeGroup group, List<CCombType> replaceWith) throws CatacombException;
 	
 	/**
 	 * Returns true if the type is concrete.

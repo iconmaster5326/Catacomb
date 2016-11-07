@@ -1,6 +1,10 @@
 package info.iconmaster.ccomb.types;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+
+import info.iconmaster.ccomb.exceptions.CatacombException;
 
 /**
  * A variable type.
@@ -10,7 +14,7 @@ import java.util.Map;
 public class VarType extends CCombType {
 	
 	public static class TypeGroup {
-		CCombType supertype;
+		public CCombType supertype;
 		
 		public TypeGroup() {
 			this.supertype = PolyType.ANY;
@@ -78,12 +82,13 @@ public class VarType extends CCombType {
 		return group.supertype.isCastableTo(other);
 	}
 	
+	
 	@Override
-	public CCombType withVarsReplaced(Map<VarType.TypeGroup, CCombType> types) {
-		if (types.containsKey(this.group)) {
-			return types.get(this.group);
+	public List<CCombType> withVarsReplaced(VarType.TypeGroup group, List<CCombType> replaceWith) throws CatacombException {
+		if (this.group == group) {
+			return replaceWith;
 		} else {
-			return this;
+			return Arrays.asList(this);
 		}
 	}
 	

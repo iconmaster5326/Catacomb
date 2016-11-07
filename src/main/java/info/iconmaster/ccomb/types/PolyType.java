@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import info.iconmaster.ccomb.exceptions.CatacombException;
 
@@ -142,22 +142,33 @@ public class PolyType extends CCombType {
 	}
 	
 	@Override
-	public CCombType withVarsReplaced(Map<VarType.TypeGroup, CCombType> types) {
+	public List<CCombType> withVarsReplaced(VarType.TypeGroup group, List<CCombType> replaceWith) throws CatacombException {
 		ArrayList<CCombType> newTypevars = new ArrayList<>();
 		ArrayList<CCombType> newSupertypes = new ArrayList<>();
 		
 		for (CCombType type : typevars) {
-			newTypevars.add(type.withVarsReplaced(types));
+			List<CCombType> types = type.withVarsReplaced(group, replaceWith);
+			if (types.size() != 1) {
+				throw new CatacombException("Cannot have repition type as type parameter");
+			}
+			newTypevars.addAll(types);
 		}
 		
 		for (CCombType type : supertypes) {
-			newSupertypes.add(type.withVarsReplaced(types));
+			List<CCombType> types = type.withVarsReplaced(group, replaceWith);
+			if (types.size() != 1) {
+				throw new CatacombException("Cannot have repition type as supertype");
+			}
+			newSupertypes.addAll(types);
 		}
 		
 		PolyType retType = new PolyType(this);
 		retType.typevars = newTypevars;
 		retType.supertypes = newSupertypes;
-		return retType;
+		
+		retType.assertWellFormed();
+		
+		return Arrays.asList(retType);
 	}
 	
 	// stuff for type lookup.
@@ -276,14 +287,17 @@ public class PolyType extends CCombType {
 	 * 
 	 * @param types
 	 */
-	public void addSupertypes(PolyType template) {
-		HashMap<VarType.TypeGroup, CCombType> typemap = new HashMap<>();
+	public void addSupertypes(PolyType template) throws CatacombException {
 		for (int i = 0; i < typevars.size(); i++) {
-			if (template.typevars.get(i) instanceof VarType) typemap.put(((VarType)template.typevars.get(i)).group, typevars.get(i));
-		}
-		
-		for (CCombType type : template.supertypes) {
-			supertypes.add(type.withVarsReplaced(typemap));
+			if (template.typevars.get(i) instanceof VarType) {
+				for (int j = 0; j < supertypes.size(); j++) {
+					List<CCombType> withRepl = supertypes.get(j).withVarsReplaced(((VarType)template.typevars.get(i)).group, Arrays.asList(typevars.get(i)));
+					if (withRepl.size() != 1) {
+						throw new CatacombException("Cannot have repition type as supertype");
+					}
+					supertypes.set(j, withRepl.get(0));
+				}
+			}
 		}
 	}
 	

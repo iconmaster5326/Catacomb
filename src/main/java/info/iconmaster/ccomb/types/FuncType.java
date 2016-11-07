@@ -1,9 +1,12 @@
 package info.iconmaster.ccomb.types;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
+import info.iconmaster.ccomb.exceptions.CatacombException;
 import info.iconmaster.ccomb.types.VarType.TypeGroup;
 
 public class FuncType extends CCombType {
@@ -108,18 +111,18 @@ public class FuncType extends CCombType {
 	}
 	
 	@Override
-	public CCombType withVarsReplaced(Map<TypeGroup, CCombType> types) {
+	public List<CCombType> withVarsReplaced(VarType.TypeGroup group, List<CCombType> replaceWith) throws CatacombException {
 		FuncType newType = new FuncType();
 		
 		for (CCombType type : lhs) {
-			newType.lhs.add(type.withVarsReplaced(types));
+			newType.lhs.addAll(type.withVarsReplaced(group, replaceWith));
 		}
 		
 		for (CCombType type : rhs) {
-			newType.rhs.add(type.withVarsReplaced(types));
+			newType.rhs.addAll(type.withVarsReplaced(group, replaceWith));
 		}
 		
-		return newType;
+		return Arrays.asList(newType);
 	}
 	
 	@Override

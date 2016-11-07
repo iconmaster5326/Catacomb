@@ -1,7 +1,12 @@
 package info.iconmaster.ccomb.function;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import info.iconmaster.ccomb.exceptions.CatacombException;
 import info.iconmaster.ccomb.types.CCombType;
@@ -30,71 +35,86 @@ public class FunctionComposer {
 	 */
 	public static FuncType compose(Collection<? extends Function> funcs) throws CatacombException {
 		FuncType retType = new FuncType();
-		//System.out.println("BEGIN: " + retType.toString());
 		for (Function func : funcs) {
-			//System.out.print(retType.toString() + " && " + func.type.toString());
-			int producedSize = retType.rhs.size();
-			int consumedSize = func.type.lhs.size();
-			for (int i = 0; i < Math.max(producedSize, consumedSize); i++) {
-				if (i >= producedSize) {
-					// move to back of lhs of retType
-					CCombType consumed = func.type.lhs.get(func.type.lhs.size()-i-1);
-					retType.lhs.add(0, consumed);
-				} else if (i >= consumedSize) {
-					// move to back of rhs of retType (a no-op)
-					break;
-				} else {
-					// ensure types match
-					CCombType produced = retType.rhs.get(retType.rhs.size()-i-1);
-					CCombType consumed = func.type.lhs.get(func.type.lhs.size()-i-1);
-					
-					if (!produced.isCastableTo(consumed)) {
-						throw new CatacombException("Cannot compose functions");
-					}
-				}
-			}
-			// remove elements comsumed by func
-			HashMap<VarType.TypeGroup, CCombType> repls = new HashMap<>();
-			for (int i = 0; i < Math.min(producedSize, consumedSize); i++) {
-				CCombType removedType = retType.rhs.remove(retType.rhs.size()-1);
-				CCombType maybeVarType = func.type.lhs.get(func.type.lhs.size()-i-1);
-				if (maybeVarType instanceof VarType) {
-					repls.put(((VarType)maybeVarType).group, removedType);
-				}
-				if (removedType instanceof FuncType && maybeVarType instanceof FuncType) {
-					matchFuncTypes(repls, (FuncType) removedType, (FuncType) maybeVarType);
-				}
-			}
-			// add elements produced by func
-			for (CCombType type : func.type.rhs) {
-				retType.rhs.add(type);
-			}
-			if (!repls.isEmpty()) retType = (FuncType) retType.withVarsReplaced(repls);
-			//System.out.println(" ==> " + retType.toString());
+			MatchResult res = match(retType.rhs, func.type.lhs);
+			
+			ArrayList<CCombType> newLHS = new ArrayList<>();
+			addReplaced(newLHS, res.consumedLeft, res.repls);
+			addReplaced(newLHS, retType.lhs, res.repls);
+			retType.lhs = newLHS;
+			
+			ArrayList<CCombType> newRHS = new ArrayList<>();
+			addReplaced(newRHS, res.producedLeft, res.repls);
+			addReplaced(newRHS, func.type.rhs, res.repls);
+			retType.rhs = newRHS;
 		}
-		//System.out.println("END: " + retType.toString());
 		return retType;
 	}
 	
-	static void matchFuncTypes(HashMap<VarType.TypeGroup, CCombType> repls, FuncType produced, FuncType consumed) {
-		// FIXME: assuming they have the same size... A dangerous assumption to make!
-		
-		for (int i = 0; i < produced.lhs.size(); i++) {
-			if (consumed.lhs.get(i) instanceof VarType) {
-				repls.put(((VarType)consumed.lhs.get(i)).group, produced.lhs.get(i));
-				if (produced.lhs.get(i) instanceof FuncType && consumed.lhs.get(i) instanceof FuncType) {
-					matchFuncTypes(repls, (FuncType) produced.lhs.get(i), (FuncType) consumed.lhs.get(i));
+	private static void addReplaced(List<CCombType> toAdd, List<CCombType> toReplace, Map<VarType.TypeGroup, List<CCombType>> repls) throws CatacombException {
+		for (CCombType type : toReplace) {
+			List<CCombType> newType = Arrays.asList(type);
+			for (Map.Entry<VarType.TypeGroup, List<CCombType>> repl : repls.entrySet()) {
+				List<CCombType> newTypes = new ArrayList<>();
+				for ( CCombType item : newType) {
+					newTypes.addAll(item.withVarsReplaced(repl.getKey(), repl.getValue()));
 				}
+				newType = newTypes;
 			}
+			toAdd.addAll(newType);
+		}
+	}
+	
+	
+	public static class MatchResult {
+		public HashMap<VarType.TypeGroup, List<CCombType>> repls = new HashMap<>();
+		public Stack<CCombType> producedLeft = new Stack<>();
+		public Stack<CCombType> consumedLeft = new Stack<>();
+	}
+	
+	public static MatchResult match(Collection<? extends CCombType> produced, Collection<? extends CCombType> consumed) throws CatacombException {
+		MatchResult res = new MatchResult();
+		res.producedLeft.addAll(produced);
+		res.consumedLeft.addAll(consumed);
+		
+		while (!res.producedLeft.isEmpty() && !res.consumedLeft.isEmpty()) {
+			match(res, res.consumedLeft.pop());
 		}
 		
-		for (int i = 0; i < produced.rhs.size(); i++) {
-			if (consumed.rhs.get(i) instanceof VarType) {
-				repls.put(((VarType)consumed.rhs.get(i)).group, produced.rhs.get(i));
-				if (produced.rhs.get(i) instanceof FuncType && consumed.rhs.get(i) instanceof FuncType) {
-					matchFuncTypes(repls, (FuncType) produced.rhs.get(i), (FuncType) consumed.rhs.get(i));
-				}
+		return res;
+	}
+	
+	private static Stack<CCombType> match(MatchResult res, CCombType consumedType) throws CatacombException {
+		if (consumedType instanceof VarType) {
+			Stack<CCombType> stack = match(res, ((VarType)consumedType).group.supertype);
+			
+			Stack<CCombType> producedLeftRepl = new Stack<>();
+			producedLeftRepl.addAll(res.producedLeft);
+			res.producedLeft.clear();
+			for (int i = 0; i < producedLeftRepl.size(); i++) {
+				res.producedLeft.addAll(producedLeftRepl.get(i).withVarsReplaced(((VarType)consumedType).group, stack));
 			}
+			
+			Stack<CCombType> consumedLeftRepl = new Stack<>();
+			consumedLeftRepl.addAll(res.consumedLeft);
+			res.consumedLeft.clear();
+			for (int i = 0; i < consumedLeftRepl.size(); i++) {
+				res.consumedLeft.addAll(consumedLeftRepl.get(i).withVarsReplaced(((VarType)consumedType).group, stack));
+			}
+			
+			res.repls.put(((VarType)consumedType).group, stack);
+			
+			return stack;
+		} else {
+			CCombType producedType = res.producedLeft.pop();
+			
+			if (!producedType.isCastableTo(consumedType)) {
+				throw new CatacombException("could not match single types");
+			}
+			
+			Stack<CCombType> stack = new Stack<>();
+			stack.push(producedType);
+			return stack;
 		}
 	}
 }
