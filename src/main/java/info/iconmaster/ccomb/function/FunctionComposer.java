@@ -1,7 +1,6 @@
 package info.iconmaster.ccomb.function;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +10,7 @@ import java.util.Stack;
 import info.iconmaster.ccomb.exceptions.CatacombException;
 import info.iconmaster.ccomb.types.CCombType;
 import info.iconmaster.ccomb.types.FuncType;
+import info.iconmaster.ccomb.types.RepeatedType;
 import info.iconmaster.ccomb.types.VarType;
 
 /**
@@ -94,11 +94,47 @@ public class FunctionComposer {
 			}
 			
 			return stack;
+		} else if (consumedType instanceof RepeatedType) {
+			RepeatedType repType = (RepeatedType) consumedType;
+			Stack<CCombType> matched = new Stack<>();
+			
+			do {
+				MatchResult trialRes = new MatchResult();
+				trialRes.consumedLeft.addAll(res.consumedLeft);
+				trialRes.producedLeft.addAll(res.producedLeft);
+				trialRes.repls.putAll(res.repls);
+				
+				boolean error = false;
+				try {
+					while (!trialRes.producedLeft.isEmpty() && !trialRes.consumedLeft.isEmpty()) {
+						match(trialRes, trialRes.consumedLeft.pop());
+					}
+				} catch (CatacombException ex) {
+					// was not viable
+					error = true;
+					
+					if (res.producedLeft.isEmpty()) {
+						throw new CatacombException("Cannot match repition");
+					}
+					
+					matched.push(res.producedLeft.pop());
+				}
+				
+				if (!error) {
+					res.consumedLeft = trialRes.consumedLeft;
+					res.producedLeft = trialRes.producedLeft;
+					res.repls = trialRes.repls;
+					
+					break;
+				}
+			} while (true);
+			
+			return matched;
 		} else {
 			CCombType producedType = res.producedLeft.pop();
 			
 			if (!producedType.isCastableTo(consumedType)) {
-				throw new CatacombException("could not match single types");
+				throw new CatacombException("in matching types: "+producedType.toString()+" is not castable to "+consumedType.toString());
 			}
 			
 			Stack<CCombType> stack = new Stack<>();
@@ -109,13 +145,12 @@ public class FunctionComposer {
 				MatchResult rhsres = match(((FuncType)producedType).rhs, ((FuncType)consumedType).rhs);
 				
 				if (!lhsres.consumedLeft.isEmpty() || !lhsres.producedLeft.isEmpty() || !rhsres.consumedLeft.isEmpty() || !rhsres.producedLeft.isEmpty()) {
-					throw new CatacombException("Function types did not actually match");
+					throw new CatacombException("Function types did not match");
 				}
 				
 				res.repls.putAll(lhsres.repls);
 				res.repls.putAll(rhsres.repls);
 			}
-			
 			
 			return stack;
 		}
