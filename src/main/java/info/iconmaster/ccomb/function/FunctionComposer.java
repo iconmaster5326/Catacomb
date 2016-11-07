@@ -103,6 +103,20 @@ public class FunctionComposer {
 			
 			Stack<CCombType> stack = new Stack<>();
 			stack.push(producedType);
+			
+			if (producedType instanceof FuncType && consumedType instanceof FuncType) {
+				MatchResult lhsres = match(((FuncType)producedType).lhs, ((FuncType)consumedType).lhs);
+				MatchResult rhsres = match(((FuncType)producedType).rhs, ((FuncType)consumedType).rhs);
+				
+				if (!lhsres.consumedLeft.isEmpty() || !lhsres.producedLeft.isEmpty() || !rhsres.consumedLeft.isEmpty() || !rhsres.producedLeft.isEmpty()) {
+					throw new CatacombException("Function types did not actually match");
+				}
+				
+				res.repls.putAll(lhsres.repls);
+				res.repls.putAll(rhsres.repls);
+			}
+			
+			
 			return stack;
 		}
 	}
