@@ -21,8 +21,8 @@ public class VarType extends CCombType {
 		}
 	}
 	
-	String name;
-	TypeGroup group;
+	public String name;
+	public TypeGroup group;
 	
 	public VarType() {
 		this(new TypeGroup());
@@ -86,7 +86,7 @@ public class VarType extends CCombType {
 			return this;
 		}
 	}
-
+	
 	@Override
 	public boolean isConcrete() {
 		return group.supertype.isConcrete();

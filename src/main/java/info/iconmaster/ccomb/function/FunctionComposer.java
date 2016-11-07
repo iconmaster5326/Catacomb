@@ -1,10 +1,12 @@
 package info.iconmaster.ccomb.function;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 import info.iconmaster.ccomb.exceptions.CatacombException;
 import info.iconmaster.ccomb.types.CCombType;
 import info.iconmaster.ccomb.types.FuncType;
+import info.iconmaster.ccomb.types.VarType;
 
 /**
  * A utility class to hold the code for composing functions together.
@@ -52,13 +54,19 @@ public class FunctionComposer {
 				}
 			}
 			// remove elements comsumed by func
+			HashMap<VarType.TypeGroup, CCombType> repls = new HashMap<>();
 			for (int i = 0; i < Math.min(producedSize, consumedSize); i++) {
-				retType.rhs.remove(retType.rhs.size()-1);
+				CCombType removedType = retType.rhs.remove(retType.rhs.size()-1);
+				CCombType maybeVarType = func.type.lhs.get(func.type.lhs.size()-i-1);
+				if (maybeVarType instanceof VarType) {
+					repls.put(((VarType)maybeVarType).group, removedType);
+				}
 			}
 			// add elements produced by func
 			for (CCombType type : func.type.rhs) {
 				retType.rhs.add(type);
 			}
+			if (!repls.isEmpty()) retType = (FuncType) retType.withVarsReplaced(repls);
 			//System.out.println(" ==> " + retType.toString());
 		}
 		//System.out.println("END: " + retType.toString());
