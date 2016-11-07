@@ -61,6 +61,9 @@ public class FunctionComposer {
 				if (maybeVarType instanceof VarType) {
 					repls.put(((VarType)maybeVarType).group, removedType);
 				}
+				if (removedType instanceof FuncType && maybeVarType instanceof FuncType) {
+					matchFuncTypes(repls, (FuncType) removedType, (FuncType) maybeVarType);
+				}
 			}
 			// add elements produced by func
 			for (CCombType type : func.type.rhs) {
@@ -71,5 +74,27 @@ public class FunctionComposer {
 		}
 		//System.out.println("END: " + retType.toString());
 		return retType;
+	}
+	
+	static void matchFuncTypes(HashMap<VarType.TypeGroup, CCombType> repls, FuncType produced, FuncType consumed) {
+		// FIXME: assuming they have the same size... A dangerous assumption to make!
+		
+		for (int i = 0; i < produced.lhs.size(); i++) {
+			if (consumed.lhs.get(i) instanceof VarType) {
+				repls.put(((VarType)consumed.lhs.get(i)).group, produced.lhs.get(i));
+				if (produced.lhs.get(i) instanceof FuncType && consumed.lhs.get(i) instanceof FuncType) {
+					matchFuncTypes(repls, (FuncType) produced.lhs.get(i), (FuncType) consumed.lhs.get(i));
+				}
+			}
+		}
+		
+		for (int i = 0; i < produced.rhs.size(); i++) {
+			if (consumed.rhs.get(i) instanceof VarType) {
+				repls.put(((VarType)consumed.rhs.get(i)).group, produced.rhs.get(i));
+				if (produced.rhs.get(i) instanceof FuncType && consumed.rhs.get(i) instanceof FuncType) {
+					matchFuncTypes(repls, (FuncType) produced.rhs.get(i), (FuncType) consumed.rhs.get(i));
+				}
+			}
+		}
 	}
 }

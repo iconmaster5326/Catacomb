@@ -11,6 +11,8 @@ import info.iconmaster.ccomb.execute.CCombStack;
 import info.iconmaster.ccomb.function.FunctionComposer;
 import info.iconmaster.ccomb.function.SystemFunction;
 import info.iconmaster.ccomb.function.UserFunction;
+import info.iconmaster.ccomb.types.VarType.TypeGroup;
+
 import static org.junit.Assert.*;
 
 public class CompositionTests {
@@ -127,5 +129,34 @@ public class CompositionTests {
 		
 		FuncType composed = FunctionComposer.compose(Arrays.asList(func1, func2));
 		assertEquals(new FuncType(Arrays.asList(new PolyType("int")), Arrays.asList(new PolyType("int"))), composed);
+	}
+	
+	@Test // { -- int} && {'A 'B -- 'C} ==> {int -- int}; 'A 'B 'C.
+	public void test10() throws Throwable {
+		TypeGroup g = new TypeGroup();
+		VarType a = new VarType("A", g);
+		VarType b = new VarType("B", g);
+		VarType c = new VarType("C", g);
+		
+		SystemFunction func1 = new TestFunction(new FuncType(Arrays.asList(), Arrays.asList(new PolyType("int"))));
+		SystemFunction func2 = new TestFunction(new FuncType(Arrays.asList(a, b), Arrays.asList(c)));
+		
+		FuncType composed = FunctionComposer.compose(Arrays.asList(func1, func2));
+		assertEquals(new FuncType(Arrays.asList(new PolyType("int")), Arrays.asList(new PolyType("int"))), composed);
+	}
+	
+	@Test // { -- {int -- char}} && {'A {'A -- 'B} -- 'B} ==> {int -- char}
+	public void test11() throws Throwable {
+		VarType a = new VarType("A");
+		VarType b = new VarType("B");
+		
+		FuncType subfunc1 = new FuncType(Arrays.asList(new PolyType("int")), Arrays.asList(new PolyType("char")));
+		FuncType subfunc2 = new FuncType(Arrays.asList(a), Arrays.asList(b));
+		
+		SystemFunction func1 = new TestFunction(new FuncType(Arrays.asList(), Arrays.asList(subfunc1)));
+		SystemFunction func2 = new TestFunction(new FuncType(Arrays.asList(a, subfunc2), Arrays.asList(b)));
+		
+		FuncType composed = FunctionComposer.compose(Arrays.asList(func1, func2));
+		assertEquals(new FuncType(Arrays.asList(new PolyType("int")), Arrays.asList(new PolyType("char"))), composed);
 	}
 }
