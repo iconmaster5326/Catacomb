@@ -52,19 +52,8 @@ public class FunctionComposer {
 	}
 	
 	private static void addReplaced(List<CCombType> toAdd, List<CCombType> toReplace, Map<VarType.TypeGroup, List<CCombType>> repls) throws CatacombException {
-		for (CCombType type : toReplace) {
-			List<CCombType> newType = Arrays.asList(type);
-			for (Map.Entry<VarType.TypeGroup, List<CCombType>> repl : repls.entrySet()) {
-				List<CCombType> newTypes = new ArrayList<>();
-				for ( CCombType item : newType) {
-					newTypes.addAll(item.withVarsReplaced(repl.getKey(), repl.getValue()));
-				}
-				newType = newTypes;
-			}
-			toAdd.addAll(newType);
-		}
+		toAdd.addAll(CCombType.withVarsReplaced(toReplace, repls));
 	}
-	
 	
 	public static class MatchResult {
 		public HashMap<VarType.TypeGroup, List<CCombType>> repls = new HashMap<>();
@@ -88,21 +77,21 @@ public class FunctionComposer {
 		if (consumedType instanceof VarType) {
 			Stack<CCombType> stack = match(res, ((VarType)consumedType).group.supertype);
 			
+			res.repls.put(((VarType)consumedType).group, stack);
+			
 			Stack<CCombType> producedLeftRepl = new Stack<>();
 			producedLeftRepl.addAll(res.producedLeft);
 			res.producedLeft.clear();
 			for (int i = 0; i < producedLeftRepl.size(); i++) {
-				res.producedLeft.addAll(producedLeftRepl.get(i).withVarsReplaced(((VarType)consumedType).group, stack));
+				res.producedLeft.addAll(producedLeftRepl.get(i).withVarsReplaced(res.repls));
 			}
 			
 			Stack<CCombType> consumedLeftRepl = new Stack<>();
 			consumedLeftRepl.addAll(res.consumedLeft);
 			res.consumedLeft.clear();
 			for (int i = 0; i < consumedLeftRepl.size(); i++) {
-				res.consumedLeft.addAll(consumedLeftRepl.get(i).withVarsReplaced(((VarType)consumedType).group, stack));
+				res.consumedLeft.addAll(consumedLeftRepl.get(i).withVarsReplaced(res.repls));
 			}
-			
-			res.repls.put(((VarType)consumedType).group, stack);
 			
 			return stack;
 		} else {

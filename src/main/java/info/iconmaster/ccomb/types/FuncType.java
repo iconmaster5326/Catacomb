@@ -111,15 +111,15 @@ public class FuncType extends CCombType {
 	}
 	
 	@Override
-	public List<CCombType> withVarsReplaced(VarType.TypeGroup group, List<CCombType> replaceWith) throws CatacombException {
+	public List<CCombType> withVarsReplaced(Map<VarType.TypeGroup, List<CCombType>> replaceWith) throws CatacombException {
 		FuncType newType = new FuncType();
 		
 		for (CCombType type : lhs) {
-			newType.lhs.addAll(type.withVarsReplaced(group, replaceWith));
+			newType.lhs.addAll(type.withVarsReplaced(replaceWith));
 		}
 		
 		for (CCombType type : rhs) {
-			newType.rhs.addAll(type.withVarsReplaced(group, replaceWith));
+			newType.rhs.addAll(type.withVarsReplaced(replaceWith));
 		}
 		
 		return Arrays.asList(newType);

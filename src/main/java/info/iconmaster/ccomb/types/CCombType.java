@@ -1,7 +1,8 @@
 package info.iconmaster.ccomb.types;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import info.iconmaster.ccomb.exceptions.CatacombException;
 
@@ -25,7 +26,7 @@ public abstract class CCombType {
 	 * 
 	 * @return
 	 */
-	public abstract List<CCombType> withVarsReplaced(VarType.TypeGroup group, List<CCombType> replaceWith) throws CatacombException;
+	public abstract List<CCombType> withVarsReplaced(Map<VarType.TypeGroup, List<CCombType>> replaceWith) throws CatacombException;
 	
 	/**
 	 * Returns true if the type is concrete.
@@ -34,4 +35,20 @@ public abstract class CCombType {
 	 * @return
 	 */
 	public abstract boolean isConcrete();
+	
+	/**
+	 * This is a version of withVarsReplaced that works on a list of types instead of just one.
+	 * @param typeToReplace
+	 * @param group
+	 * @param replaceWith
+	 * @return
+	 * @throws CatacombException
+	 */
+	public static List<CCombType> withVarsReplaced(List<CCombType> typesToReplace, Map<VarType.TypeGroup, List<CCombType>> replaceWith) throws CatacombException {
+		ArrayList<CCombType> types = new ArrayList<>();
+		for (CCombType type : typesToReplace) {
+			types.addAll(type.withVarsReplaced(replaceWith));
+		}
+		return types;
+	}
 }

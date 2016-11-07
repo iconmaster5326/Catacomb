@@ -84,9 +84,9 @@ public class VarType extends CCombType {
 	
 	
 	@Override
-	public List<CCombType> withVarsReplaced(VarType.TypeGroup group, List<CCombType> replaceWith) throws CatacombException {
-		if (this.group == group) {
-			return replaceWith;
+	public List<CCombType> withVarsReplaced(Map<VarType.TypeGroup, List<CCombType>> replaceWith) throws CatacombException {
+		if (replaceWith.containsKey(group)) {
+			return CCombType.withVarsReplaced(replaceWith.get(group), replaceWith);
 		} else {
 			return Arrays.asList(this);
 		}

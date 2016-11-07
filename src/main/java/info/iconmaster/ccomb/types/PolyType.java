@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import info.iconmaster.ccomb.exceptions.CatacombException;
 
@@ -142,12 +143,12 @@ public class PolyType extends CCombType {
 	}
 	
 	@Override
-	public List<CCombType> withVarsReplaced(VarType.TypeGroup group, List<CCombType> replaceWith) throws CatacombException {
+	public List<CCombType> withVarsReplaced(Map<VarType.TypeGroup, List<CCombType>> replaceWith) throws CatacombException {
 		ArrayList<CCombType> newTypevars = new ArrayList<>();
 		ArrayList<CCombType> newSupertypes = new ArrayList<>();
 		
 		for (CCombType type : typevars) {
-			List<CCombType> types = type.withVarsReplaced(group, replaceWith);
+			List<CCombType> types = type.withVarsReplaced(replaceWith);
 			if (types.size() != 1) {
 				throw new CatacombException("Cannot have repition type as type parameter");
 			}
@@ -155,7 +156,7 @@ public class PolyType extends CCombType {
 		}
 		
 		for (CCombType type : supertypes) {
-			List<CCombType> types = type.withVarsReplaced(group, replaceWith);
+			List<CCombType> types = type.withVarsReplaced(replaceWith);
 			if (types.size() != 1) {
 				throw new CatacombException("Cannot have repition type as supertype");
 			}
@@ -288,16 +289,13 @@ public class PolyType extends CCombType {
 	 * @param types
 	 */
 	public void addSupertypes(PolyType template) throws CatacombException {
+		HashMap<VarType.TypeGroup, List<CCombType>> typemap = new HashMap<>();
 		for (int i = 0; i < typevars.size(); i++) {
-			if (template.typevars.get(i) instanceof VarType) {
-				for (int j = 0; j < supertypes.size(); j++) {
-					List<CCombType> withRepl = supertypes.get(j).withVarsReplaced(((VarType)template.typevars.get(i)).group, Arrays.asList(typevars.get(i)));
-					if (withRepl.size() != 1) {
-						throw new CatacombException("Cannot have repition type as supertype");
-					}
-					supertypes.set(j, withRepl.get(0));
-				}
-			}
+			if (template.typevars.get(i) instanceof VarType && template.typevars.get(i) != typevars.get(i)) typemap.put(((VarType)template.typevars.get(i)).group, Arrays.asList(typevars.get(i)));
+		}
+		
+		for (CCombType type : template.supertypes) {
+			supertypes.addAll(type.withVarsReplaced(typemap));
 		}
 	}
 	
